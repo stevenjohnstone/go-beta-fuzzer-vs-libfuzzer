@@ -11,13 +11,13 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func Libfuzzer() error {
+func libfuzzer(fuzz string) error {
 	start := time.Now()
 	defer func() {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
 	}()
 
-	if err := sh.Run("go114-fuzz-build", "-go=gotip", "-func=Fuzz", "-o=fuzz.a", "./"); err != nil {
+	if err := sh.Run("go114-fuzz-build", "-go=gotip", fmt.Sprintf("-func=%s", fuzz), "-o=fuzz.a", "./"); err != nil {
 		return err
 	}
 
@@ -30,18 +30,35 @@ func Libfuzzer() error {
 		return errors.New("failed to run command")
 	}
 	return err
+
 }
 
-func Betafuzzer() error {
+func Libfuzzer() error {
+	return libfuzzer("Fuzz")
+}
+
+func LoopLibfuzzer() error {
+	return libfuzzer("FuzzLoop")
+}
+
+func betafuzzer(fuzz string) error {
 	// TODO: clean out testdata and cache
 	start := time.Now()
 	defer func() {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
 	}()
 
-	ran, err := sh.Exec(nil, os.Stdout, os.Stderr, "gotip", "test", "-fuzz=FuzzBeta")
+	ran, err := sh.Exec(nil, os.Stdout, os.Stderr, "gotip", "test", fmt.Sprintf("-fuzz=%s", fuzz))
 	if !ran {
 		return errors.New("failed to run command")
 	}
 	return err
+}
+
+func Betafuzzer() error {
+	return betafuzzer("FuzzBeta")
+}
+
+func LoopBetafuzzer() error {
+	return betafuzzer("FuzzLoopBeta")
 }

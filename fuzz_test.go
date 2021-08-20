@@ -11,3 +11,11 @@ func FuzzBeta(f *testing.F) {
 		}
 	})
 }
+
+func FuzzLoopBeta(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		if loopmagic(data) {
+			t.Fatalf("magic is %v", data)
+		}
+	})
+}

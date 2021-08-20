@@ -14,14 +14,6 @@ https://github.com/stevenjohnstone/go114-fuzz-build is used to build an archive 
 a ```LLVMFuzzerTestOneInput``` harness. This is a branch of https://github.com/mdempsky/go114-fuzz-build with a
 command line flag added to specify the go compiler. Here, the dev.fuzz branch of golang is used with gotip.
 
-## Tests
-
-The first test is to find an input which makes ```magic``` return true.
-```golang
-func magic(input []byte) bool {
-	return len(input) == 4 && input[0] == 1 && input[1] == 3 && input[2] == 3 && input[3] == 7
-}
-```
 
 ## Usage
 
@@ -30,6 +22,25 @@ Build the container:
 ```
 $ docker build -t fuzztests .
 ```
+
+There are four tests:
+
+Non-looping (```magic``` in [fuzz.go](/fuzz.go))
+```
+docker run --rm fuzztests mage libfuzzer
+docker run --rm fuzztests mage betafuzzer
+```
+which run the libfuzzer and beta fuzzer tests, respectively.
+
+
+Looping (```loopmagic``` in [fuzz.go](/fuzz.go))
+```
+docker run --rm fuzztests mage looplibfuzzer
+docker run --rm fuzztests mage loopbetafuzzer
+```
+
+
+## Example Results
 
 To run libfuzzer
 ```
@@ -77,7 +88,6 @@ stat::peak_rss_mb:              27
 time elapsed 13.248694284s
 ```
 
-To run the beta fuzzer
 ```
 $ docker run --rm fuzztests mage betafuzzer
 docker run --rm fuzztests mage betafuzzer
@@ -128,10 +138,68 @@ time elapsed 1m36.380102004s
 Error: running "gotip test -fuzz=FuzzBeta" failed with exit code 1
 ```
 
+## Looping and the Beta Fuzzer
+
+When using ```loopmagic```, the beta fuzzer fails to make progress i.e.
+
+```
+docker run --rm fuzztests mage loopbetafuzzer
+```
+doesn't find a crasher.
+
+By comparison, libfuzzer manages to find a crasher (with the same instrumentation)
+```
+docker run --rm fuzztests mage looplibfuzzer
+INFO: Seed: 4224861379
+INFO: 66 Extra Counters
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED ft: 4 corp: 1/1b lim: 4 exec/s: 0 rss: 25Mb
+#22	NEW    ft: 7 corp: 2/5b lim: 4 exec/s: 0 rss: 25Mb L: 4/4 MS: 5 InsertByte-ShuffleBytes-InsertByte-EraseBytes-CopyPart-
+#16314	NEW    ft: 9 corp: 3/9b lim: 17 exec/s: 8157 rss: 25Mb L: 4/4 MS: 2 ChangeBinInt-ChangeBinInt-
+#16384	pulse  ft: 9 corp: 3/9b lim: 17 exec/s: 8192 rss: 25Mb
+#18469	NEW    ft: 11 corp: 4/13b lim: 17 exec/s: 9234 rss: 25Mb L: 4/4 MS: 5 EraseBytes-InsertByte-ChangeBit-ChangeBit-CopyPart-
+#19680	NEW    ft: 13 corp: 5/17b lim: 17 exec/s: 9840 rss: 25Mb L: 4/4 MS: 1 CopyPart-
+panic: ([]uint8) 0xc00000e018
+
+goroutine 17 [running, locked to thread]:
+github.com/stevenjohnstone/fuzztests.FuzzLoop(...)
+	github.com/stevenjohnstone/fuzztests/fuzz.go:31
+main.LLVMFuzzerTestOneInput(...)
+	./main.238601699.go:21
+==683== ERROR: libFuzzer: deadly signal
+    #0 0x450ddf in __sanitizer_print_stack_trace (/fuzztests/fuzz.libfuzzer+0x450ddf)
+    #1 0x430f4b in fuzzer::PrintStackTrace() (/fuzztests/fuzz.libfuzzer+0x430f4b)
+    #2 0x414b7b in fuzzer::Fuzzer::CrashCallback() (/fuzztests/fuzz.libfuzzer+0x414b7b)
+    #3 0x414b3f in fuzzer::Fuzzer::StaticCrashSignalCallback() (/fuzztests/fuzz.libfuzzer+0x414b3f)
+    #4 0x7fe3f929772f  (/lib/x86_64-linux-gnu/libpthread.so.0+0x1272f)
+    #5 0x4a53e0 in runtime.raise.abi0 runtime/sys_linux_amd64.s:164
+
+NOTE: libFuzzer has rudimentary signal handlers.
+      Combine libFuzzer with AddressSanitizer or similar for better crash reports.
+SUMMARY: libFuzzer: deadly signal
+MS: 1 ChangeBinInt-; base unit: 4a4b1eab5bdc554747e986e5c6a2152a56c6af7b
+0x1,0x3,0x3,0x7,
+\x01\x03\x03\x07
+artifact_prefix='./'; Test unit written to ./crash-f45be6129befa590730da3f100eebb7217d6b1a0
+Base64: AQMDBw==
+stat::number_of_executed_units: 31406
+stat::average_exec_per_sec:     7851
+stat::new_units_added:          4
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              27
+
+time elapsed 11.139092246s
+```
+
+
+
 ## Results
 
-Libfuzzer consistently finds a crasher in a couple of seconds with ~100000 executions. The number of executions required for the beta fuzzer
+When trying to find inputs to ```magic``` which result in a return value ```true``` and cause a crash,  libfuzzer consistently finds a crasher in a couple of seconds with ~100000 executions. The number of executions required for the beta fuzzer
 to find the crasher appears to be >= 100x that of libfuzzer.
+
+When using ```loopmagic```, it appears that libfuzzer can find a crasher but the beta fuzzer cannot.
 
 
 ## TODO
