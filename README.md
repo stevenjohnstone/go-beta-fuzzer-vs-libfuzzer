@@ -4,6 +4,8 @@ The Go [native fuzzing beta](https://blog.golang.org/fuzz-beta) uses instrumenta
 which is identical to the "libfuzzer" build mode. This allows direct comparison of
 the mutation engines of the beta fuzzer and libfuzzer.
 
+Note: applies to go version devel go1.17-7b6893d2d2 Mon Aug 23 20:58:28 2021 +0000 linux/amd64
+
 ## Technical Details
 
 When using libfuzzer, integer comparison feedback is [wired up](https://golang.org/src/runtime/libfuzzer.go)
@@ -139,15 +141,29 @@ Error: running "gotip test -fuzz=FuzzBeta" failed with exit code 1
 ```
 
 ## Looping and the Beta Fuzzer
-
-When using ```loopmagic```, the beta fuzzer fails to make progress i.e.
+Finding crashers with a simple loop appears to be about similar in performance between libfuzzer and beta fuzzer.
 
 ```
 docker run --rm fuzztests mage loopbetafuzzer
-```
-doesn't find a crasher.
+fuzzing, elapsed: 3.0s, execs: 334297 (111390/sec), workers: 8, interesting: 3
+fuzzing, elapsed: 6.0s, execs: 688004 (114632/sec), workers: 8, interesting: 4
+fuzzing, elapsed: 9.0s, execs: 1037669 (115277/sec), workers: 8, interesting: 4
+fuzzing, elapsed: 12.0s, execs: 1373068 (114408/sec), workers: 8, interesting: 4
+fuzzing, elapsed: 15.0s, execs: 1722606 (114834/sec), workers: 8, interesting: 5
+found a crash, minimizing...
+fuzzing, elapsed: 15.4s, execs: 1756923 (114089/sec), workers: 8, interesting: 5
+--- FAIL: FuzzLoopBeta (15.40s)
+        --- FAIL: FuzzLoopBeta (0.00s)
+            fuzz_test.go:21: magic is [1 3 3 7]
+    
+    Crash written to testdata/corpus/FuzzLoopBeta/1757d23fd60223bd5a11cfd3a7978f28cdb2b98e0b81542690f8f75ba96d043d
+    To re-run:
+    go test github.com/stevenjohnstone/fuzztests -run=FuzzLoopBeta/1757d23fd60223bd5a11cfd3a7978f28cdb2b98e0b81542690f8f75ba96d043d
+FAIL
+exit status 1
+FAIL	github.com/stevenjohnstone/fuzztests	15.415s
 
-By comparison, libfuzzer manages to find a crasher (with the same instrumentation)
+```
 ```
 docker run --rm fuzztests mage looplibfuzzer
 INFO: Seed: 4224861379
