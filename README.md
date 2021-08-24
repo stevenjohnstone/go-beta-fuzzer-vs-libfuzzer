@@ -205,8 +205,6 @@ time elapsed 11.139092246s
 When trying to find inputs to ```magic``` which result in a return value ```true``` and cause a crash,  libfuzzer consistently finds a crasher in a couple of seconds with ~100000 executions. The number of executions required for the beta fuzzer
 to find the crasher appears to be >= 100x that of libfuzzer.
 
-When using ```loopmagic```, it appears that libfuzzer can find a crasher but the beta fuzzer cannot.
-
 
 ## TODO
 
