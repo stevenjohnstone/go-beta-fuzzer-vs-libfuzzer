@@ -47,8 +47,6 @@ docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage betafuzzer
 To run libfuzzer
 ```
 $ docker run --rm fuzztests mage libfuzzer
-```
-docker run --rm fuzztests mage libfuzzer
 INFO: Seed: 3906051938
 INFO: 64 Extra Counters
 INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
