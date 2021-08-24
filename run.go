@@ -34,11 +34,11 @@ func libfuzzer(fuzz string) error {
 }
 
 func Libfuzzer() error {
-	return libfuzzer("Fuzz")
-}
-
-func LoopLibfuzzer() error {
-	return libfuzzer("FuzzLoop")
+	fuzzFunc := os.Getenv("FUZZ_FUNC")
+	if fuzzFunc == "" {
+		fuzzFunc = "Fuzz"
+	}
+	return libfuzzer(fuzzFunc)
 }
 
 func betafuzzer(fuzz string) error {
@@ -56,9 +56,9 @@ func betafuzzer(fuzz string) error {
 }
 
 func Betafuzzer() error {
-	return betafuzzer("FuzzBeta")
-}
-
-func LoopBetafuzzer() error {
-	return betafuzzer("FuzzLoopBeta")
+	fuzzFunc := os.Getenv("FUZZ_FUNC")
+	if fuzzFunc == "" {
+		fuzzFunc = "FuzzBeta"
+	}
+	return betafuzzer(fuzzFunc)
 }
