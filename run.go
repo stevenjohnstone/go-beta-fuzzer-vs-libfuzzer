@@ -11,6 +11,14 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+func fuzzFunc() string {
+	f := os.Getenv("FUZZ_FUNC")
+	if f == "" {
+		f = "Fuzz$"
+	}
+	return f
+}
+
 func libfuzzer(fuzz string) error {
 	start := time.Now()
 	defer func() {
@@ -34,11 +42,7 @@ func libfuzzer(fuzz string) error {
 }
 
 func Libfuzzer() error {
-	fuzzFunc := os.Getenv("FUZZ_FUNC")
-	if fuzzFunc == "" {
-		fuzzFunc = "Fuzz"
-	}
-	return libfuzzer(fuzzFunc)
+	return libfuzzer(fuzzFunc())
 }
 
 func betafuzzer(fuzz string) error {
@@ -56,9 +60,5 @@ func betafuzzer(fuzz string) error {
 }
 
 func Betafuzzer() error {
-	fuzzFunc := os.Getenv("FUZZ_FUNC")
-	if fuzzFunc == "" {
-		fuzzFunc = "FuzzBeta"
-	}
-	return betafuzzer(fuzzFunc)
+	return betafuzzer(fuzzFunc())
 }
