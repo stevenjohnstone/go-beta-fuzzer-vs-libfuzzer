@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -11,21 +12,13 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func fuzzFunc() string {
-	f := os.Getenv("FUZZ_FUNC")
-	if f == "" {
-		f = "Fuzz$"
-	}
-	return f
-}
-
-func libfuzzer(fuzz string) error {
+func Libfuzzer(_ context.Context, fuzzFunc string) error {
 	start := time.Now()
 	defer func() {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
 	}()
 
-	if err := sh.Run("go114-fuzz-build", "-go=gotip", fmt.Sprintf("-func=%s", fuzz), "-o=fuzz.a", "./"); err != nil {
+	if err := sh.Run("go114-fuzz-build", "-go=gotip", fmt.Sprintf("-func=%s", fuzzFunc), "-o=fuzz.a", "./"); err != nil {
 		return err
 	}
 
@@ -41,24 +34,17 @@ func libfuzzer(fuzz string) error {
 
 }
 
-func Libfuzzer() error {
-	return libfuzzer(fuzzFunc())
-}
-
-func betafuzzer(fuzz string) error {
+func Betafuzzer(_ context.Context, fuzzFunc string) error {
 	// TODO: clean out testdata and cache
 	start := time.Now()
 	defer func() {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
 	}()
+	fuzzFunc += "$"
 
-	ran, err := sh.Exec(nil, os.Stdout, os.Stderr, "gotip", "test", fmt.Sprintf("-fuzz=%s", fuzz))
+	ran, err := sh.Exec(nil, os.Stdout, os.Stderr, "gotip", "test", fmt.Sprintf("-fuzz=%s", fuzzFunc))
 	if !ran {
 		return errors.New("failed to run command")
 	}
 	return err
-}
-
-func Betafuzzer() error {
-	return betafuzzer(fuzzFunc())
 }

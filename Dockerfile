@@ -8,5 +8,6 @@ RUN GOPROXY=direct go get -u github.com/stevenjohnstone/go114-fuzz-build
 RUN GOPROXY=direct go get -u github.com/magefile/mage
 COPY . /fuzztests
 WORKDIR /fuzztests
+RUN mage -compile /usr/local/bin/run
 
 

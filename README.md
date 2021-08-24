@@ -29,16 +29,16 @@ There are four tests:
 
 Non-looping (```magic``` in [fuzz.go](/fuzz.go))
 ```
-docker run --rm fuzztests mage libfuzzer
-docker run --rm fuzztests mage betafuzzer
+docker run --rm fuzztests run libfuzzer Fuzz
+docker run --rm fuzztests run betafuzzer Fuzz
 ```
 which run the libfuzzer and beta fuzzer tests, respectively.
 
 
 Looping (```loopmagic``` in [fuzz.go](/fuzz.go))
 ```
-docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage libfuzzer
-docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage betafuzzer
+docker run --rm fuzztests run libfuzzer FuzzLoop
+docker run --rm fuzztests run betafuzzer FuzzLoop
 ```
 
 
@@ -46,7 +46,7 @@ docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage betafuzzer
 
 To run libfuzzer
 ```
-$ docker run --rm fuzztests mage libfuzzer
+$ docker run --rm fuzztests run libfuzzer Fuzz
 INFO: Seed: 3906051938
 INFO: 64 Extra Counters
 INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
@@ -85,7 +85,7 @@ stat::slowest_unit_time_sec:    0
 stat::peak_rss_mb:              27
 ```
 ```
-$ docker run --rm fuzztests mage betafuzzer
+$ docker run --rm fuzztests run betafuzzer Fuzz
 fuzzing, elapsed: 3.0s, execs: 330708 (110206/sec), workers: 8, interesting: 3
 fuzzing, elapsed: 6.0s, execs: 679284 (113198/sec), workers: 8, interesting: 3
 fuzzing, elapsed: 9.0s, execs: 1021705 (113508/sec), workers: 8, interesting: 3
@@ -132,7 +132,7 @@ Error: running "gotip test -fuzz=Fuzz$" failed with exit code 1
 Finding crashers with a simple loop appears to be about similar in performance between libfuzzer and beta fuzzer.
 
 ```
-docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage betafuzzer
+docker run --rm fuzztests run betafuzzer FuzzLoop
 fuzzing, elapsed: 3.0s, execs: 334297 (111390/sec), workers: 8, interesting: 3
 fuzzing, elapsed: 6.0s, execs: 688004 (114632/sec), workers: 8, interesting: 4
 fuzzing, elapsed: 9.0s, execs: 1037669 (115277/sec), workers: 8, interesting: 4
@@ -153,7 +153,7 @@ FAIL	github.com/stevenjohnstone/fuzztests	15.415s
 
 ```
 ```
-docker run --rm -e FUZZ_FUNC=FuzzLoop fuzztests mage libfuzzer
+docker run --rm fuzztests run libfuzzer FuzzLoop
 INFO: Seed: 4224861379
 INFO: 66 Extra Counters
 INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
