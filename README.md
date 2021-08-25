@@ -215,8 +215,24 @@ docker run --rm -v /path/to/code/under/test:/fuzztests fuzztests betafuzzer Fuzz
 will run the beta fuzzer for function `Fuzz` defined in the code at `/path/to/code/under/test`.
 
 
+## Cross-Compilation for Raspberry Pi
+
+To cross-compile a beta fuzzer binary for use on a Raspberry Pi
+
+```
+docker run --rm -v "$(pwd):/output" fuzztests run crosscompile output/fuzzer
+```
+There will no be an executable `fuzzer` in the current directory which can be copied to the target Pi system. To run the fuzzer `Fuzz`, execute
+```
+./fuzzer -test.fuzz=Fuzz$ -test.run=^$ -test.fuzzcachedir=./cache
+
+```
+on the Pi. Note that all fuzzer functions are available by specifiying the `-test.fuzz` parameter.
+
+
 ## TODO
 
 * more comparison tests
 * perform more runs to get an idea of the average executions required to complete tests
 * run libfuzzer tests with [integer comparison feedback](https://llvm.org/docs/LibFuzzer.html#id32): maybe useful to add to the beta fuzzer?
+* cross-compilation of libfuzzer to rpi...stuck on getting a toolchain with the ubsan/fuzzer interceptors for aarch64 (don't come packaged with clang on ubuntu)

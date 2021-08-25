@@ -49,3 +49,16 @@ func Betafuzzer(_ context.Context, fuzzFunc string) error {
 	}
 	return err
 }
+
+// CrossCompile compiles a beta fuzzer binary for use on Arm64/Linux
+func CrossCompile(_ context.Context, output string) error {
+	env := map[string]string{
+		"GOARCH": "arm64",
+		"GOOS":   "linux",
+	}
+	ran, err := sh.Exec(env, os.Stdout, os.Stderr, "gotip", "test", "-c", "-fuzz=Fuzz", fmt.Sprintf("-o=%s", output))
+	if !ran {
+		return errors.New("failed to run command")
+	}
+	return err
+}
