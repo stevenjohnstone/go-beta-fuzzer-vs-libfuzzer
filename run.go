@@ -12,6 +12,7 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+// Libfuzzer builds and runs a libfuzzer harness for the provided function `fuzzFunc`
 func Libfuzzer(_ context.Context, fuzzFunc string) error {
 	start := time.Now()
 	defer func() {
@@ -34,8 +35,8 @@ func Libfuzzer(_ context.Context, fuzzFunc string) error {
 
 }
 
+// Betafuzzer runs the golang native fuzzer for `fuzzFunc`
 func Betafuzzer(_ context.Context, fuzzFunc string) error {
-	// TODO: clean out testdata and cache
 	start := time.Now()
 	defer func() {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
