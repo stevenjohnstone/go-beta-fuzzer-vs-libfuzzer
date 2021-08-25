@@ -203,6 +203,17 @@ time elapsed 11.139092246s
 When trying to find inputs to ```magic``` which result in a return value ```true``` and cause a crash,  libfuzzer consistently finds a crasher in a couple of seconds with ~100000 executions. The number of executions required for the beta fuzzer
 to find the crasher appears to be >= 100x that of libfuzzer.
 
+## Other Targets
+
+Other golang packages can be tested by volume mounting the code directory to `fuzztests` e.g.
+
+
+```
+docker run --rm -v /path/to/code/under/test:/fuzztests fuzztests betafuzzer Fuzz
+```
+
+will run the beta fuzzer for function `Fuzz` defined in the code at `/path/to/code/under/test`.
+
 
 ## TODO
 
