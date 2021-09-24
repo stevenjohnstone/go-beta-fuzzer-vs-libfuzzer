@@ -1,15 +1,13 @@
-// +build !gofuzzbeta
-
 package fuzz
 
-func Fuzz(input []byte) int {
+func FuzzLibFuzzer(input []byte) int {
 	if magic(input) {
 		panic(input)
 	}
 	return 0
 }
 
-func FuzzLoop(input []byte) int {
+func FuzzLoopLibFuzzer(input []byte) int {
 	if loopmagic(input) {
 		panic(input)
 	}

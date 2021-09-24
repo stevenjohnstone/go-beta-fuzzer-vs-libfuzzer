@@ -1,5 +1,3 @@
-// +build gofuzzbeta
-
 package fuzz
 
 import "testing"

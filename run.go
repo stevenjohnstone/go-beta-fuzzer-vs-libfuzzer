@@ -19,7 +19,7 @@ func Libfuzzer(_ context.Context, fuzzFunc string) error {
 		fmt.Printf("\ntime elapsed %v\n", time.Now().Sub(start))
 	}()
 
-	if err := sh.Run("go114-fuzz-build", "-go=gotip", fmt.Sprintf("-func=%s", fuzzFunc), "-o=fuzz.a", "./"); err != nil {
+	if err := sh.Run("go114-fuzz-build", "-go=gotip", fmt.Sprintf("-func=%s", fuzzFunc+"LibFuzzer"), "-o=fuzz.a", "./"); err != nil {
 		return err
 	}
 
